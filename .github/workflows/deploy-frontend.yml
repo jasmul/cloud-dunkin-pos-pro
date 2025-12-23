@@ -2,16 +2,18 @@ name: Deploy Frontend to AWS
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
+    paths:
+      - 'frontend/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
     
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -20,23 +22,19 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
     
-    - name: Build Frontend
-      run: |
-        cd frontend
-        npm install
-        npm run build
-    
     - name: Deploy to S3
       run: |
-        aws s3 sync frontend/dist/ s3://dunkin-pos-frontend-prod/ --delete
+        aws s3 sync frontend/ s3://${{ secrets.S3_BUCKET_NAME }}/ --delete --exclude "*.git*"
     
     - name: Invalidate CloudFront Cache
+      if: success()
       run: |
         aws cloudfront create-invalidation \
           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
           --paths "/*"
     
-    - name: Notify Deployment
+    - name: Deployment Success
       if: success()
       run: |
-        echo "Frontend deployed successfully to AWS S3 + CloudFront"
+        echo "✅ Frontend deployed successfully to AWS S3 + CloudFront"
+        echo "🌐 CloudFront URL: https://${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}.cloudfront.net"

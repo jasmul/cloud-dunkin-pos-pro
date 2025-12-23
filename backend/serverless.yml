@@ -30,6 +30,14 @@ functions:
           method: get
           cors: true
   
+  createMenuItem:
+    handler: handlers/menu.createMenuItem
+    events:
+      - http:
+          path: menu
+          method: post
+          cors: true
+  
   createOrder:
     handler: handlers/orders.createOrder
     events:
@@ -38,12 +46,44 @@ functions:
           method: post
           cors: true
   
+  getOrders:
+    handler: handlers/orders.getOrders
+    events:
+      - http:
+          path: orders
+          method: get
+          cors: true
+  
   updateInventory:
     handler: handlers/inventory.updateInventory
     events:
       - http:
           path: inventory/{id}
           method: put
+          cors: true
+  
+  getInventory:
+    handler: handlers/inventory.getInventory
+    events:
+      - http:
+          path: inventory
+          method: get
+          cors: true
+  
+  login:
+    handler: handlers/auth.login
+    events:
+      - http:
+          path: auth/login
+          method: post
+          cors: true
+  
+  verifyToken:
+    handler: handlers/auth.verifyToken
+    events:
+      - http:
+          path: auth/verify
+          method: get
           cors: true
 
 resources:
@@ -59,5 +99,27 @@ resources:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        StreamSpecification:
-          StreamViewType: NEW_IMAGE
+    
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-orders-${opt:stage, 'dev'}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    
+    InventoryTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-inventory-${opt:stage, 'dev'}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST

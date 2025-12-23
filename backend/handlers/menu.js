@@ -33,27 +33,45 @@ exports.getMenu = async (event) => {
 };
 
 exports.createMenuItem = async (event) => {
-    const item = JSON.parse(event.body);
-    const params = {
-        TableName: process.env.MENU_TABLE,
-        Item: {
-            ...item,
-            id: AWS.util.uuid.v4(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        },
-    };
-    
     try {
+        const item = JSON.parse(event.body);
+        const params = {
+            TableName: process.env.MENU_TABLE,
+            Item: {
+                ...item,
+                id: AWS.util.uuid.v4(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+        };
+        
         await dynamoDB.put(params).promise();
+        
+        console.log('Menu item created successfully', {
+            itemId: params.Item.id,
+            name: params.Item.name,
+            timestamp: params.Item.createdAt
+        });
+        
         return {
             statusCode: 201,
-            body: JSON.stringify({ message: 'Item created successfully' }),
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true,
+            },
+            body: JSON.stringify({ 
+                message: 'Item created successfully',
+                item: params.Item
+            }),
         };
     } catch (error) {
         console.error('Create item error:', error);
         return {
             statusCode: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true,
+            },
             body: JSON.stringify({ error: 'Failed to create item' }),
         };
     }
