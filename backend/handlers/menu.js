@@ -35,11 +35,15 @@ exports.getMenu = async (event) => {
 exports.createMenuItem = async (event) => {
     try {
         const item = JSON.parse(event.body);
+        
+        // Use provided ID or generate new one
+        const itemId = item.id || require('crypto').randomUUID();
+        
         const params = {
             TableName: process.env.MENU_TABLE,
             Item: {
                 ...item,
-                id: AWS.util.uuid.v4(),
+                id: itemId,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             },
@@ -58,6 +62,8 @@ exports.createMenuItem = async (event) => {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+                'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
             },
             body: JSON.stringify({ 
                 message: 'Item created successfully',

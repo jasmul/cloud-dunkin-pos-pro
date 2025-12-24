@@ -1377,6 +1377,27 @@
                         soldToday: 0
                     };
                     
+                    // Save to cloud API
+                    try {
+                        const response = await fetch(`${CLOUD_CONFIG.API_ENDPOINT}/menu`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('id_token') || 'demo'}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(newItem)
+                        });
+                        
+                        if (response.ok) {
+                            console.log('Menu item saved to cloud:', await response.json());
+                        } else {
+                            console.error('Failed to save to cloud:', response.status, await response.text());
+                        }
+                    } catch (error) {
+                        console.error('Error saving to cloud:', error);
+                    }
+                    
+                    // Also save locally
                     await POSData.saveMenu();
                     POS.initMenu();
                     this.updateSystemOverview();
