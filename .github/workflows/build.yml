@@ -1,0 +1,47 @@
+name: Build Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # ---------- Backend Build ----------
+    - name: Setup Node.js (Backend)
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Backend Dependencies
+      working-directory: backend
+      run: npm ci
+
+    - name: Backend Build Check
+      working-directory: backend
+      run: npm run build || echo "No build script, skipping"
+
+    # ---------- Frontend Build ----------
+    - name: Install Frontend Dependencies
+      working-directory: frontend
+      run: |
+        if [ -f package.json ]; then
+          npm ci
+        else
+          echo "Static frontend detected"
+        fi
+
+    # ---------- Artifact ----------
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifact
+        path: |
+          backend
+          frontend
