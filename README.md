@@ -1,23 +1,94 @@
 # Cloud Dunkin' POS Pro ☁️
 
-A cloud-native Point of Sale system for Dunkin' Donuts built with AWS serverless technologies.
+A complete cloud-backed web application for Point of Sale (POS) operations, built with AWS serverless technologies. This system enables authenticated users to manage menu items, process orders, and track inventory through a modern, scalable cloud infrastructure.
 
-## 🚀 Features
+## 📋 Functional Requirements
 
-- ✅ **Cloud-hosted POS system** with HTTPS via CloudFront
-- ✅ **Serverless backend** (AWS Lambda Functions)
-- ✅ **Managed database** (AWS DynamoDB - NoSQL)
-- ✅ **CDN caching** via CloudFront for global performance
-- ✅ **Image upload & storage** via S3 + CloudFront CDN
-- ✅ **Public read-only menu page** (no authentication required)
-- ✅ **User authentication** with AWS Cognito (ready for integration)
-- ✅ **Real-time monitoring** with CloudWatch dashboards
-- ✅ **Cost control** with AWS Budgets alerts
-- ✅ **Infrastructure as Code** with Terraform
-- ✅ **CI/CD ready** with GitHub Actions
-- ✅ **Complete CRUD operations** for Menu, Orders, and Inventory
+### Core Entity CRUD Operations
+The system provides full Create, Read, Update, Delete (CRUD) operations for three core entities:
 
-## 📐 Architecture
+- **Menu Items**: Authenticated users can create, view, update, and delete menu items (beverages, donuts, breakfast items, etc.)
+- **Orders**: Users can create new orders and retrieve order history with order details, totals, and timestamps
+- **Inventory**: Users can manage inventory items, track quantities, and update stock levels
+
+### Public Read-Only Listing Page
+- **Public Menu Page**: A read-only menu listing page accessible to all users without authentication
+- Served through **CloudFront CDN** for global performance and caching
+- Displays menu items with images, prices, categories, and descriptions
+
+### Image Upload & Storage
+- **Image Upload**: Authenticated users can upload images for menu items
+- **Cloud Object Storage**: Images are stored in **AWS S3** buckets
+- **CDN Delivery**: Images are served through **CloudFront CDN** for fast, global access
+- Presigned URLs are generated for secure, direct-to-S3 uploads
+
+## 🏗️ Non-Functional Requirements
+
+### Cloud Deployment with HTTPS
+- **Deployed in AWS Cloud**: All components are hosted on AWS infrastructure
+- **HTTPS Enforcement**: All traffic is encrypted via **CloudFront** with automatic HTTP to HTTPS redirection
+- **Global CDN**: Content is distributed globally through CloudFront edge locations
+
+### Serverless Components
+- **AWS Lambda Functions**: Backend API is built entirely with serverless Lambda functions
+- **API Gateway**: RESTful API endpoints are exposed through AWS API Gateway
+- **Event-Driven Architecture**: Functions are triggered by HTTP requests and scale automatically
+
+### Managed Database
+- **AWS DynamoDB (NoSQL)**: Fully managed NoSQL database service
+- **Pay-per-Request Billing**: On-demand capacity mode for cost efficiency
+- **Three Tables**: Separate tables for Menu, Orders, and Inventory entities
+
+### Observability
+- **CloudWatch Logs**: All Lambda functions log to CloudWatch for debugging and monitoring
+- **CloudWatch Metrics**: Real-time metrics dashboard tracking:
+  - Lambda invocations, errors, and duration
+  - CloudFront requests and cache hit ratios
+  - DynamoDB read/write capacity usage
+- **CloudWatch Dashboard**: Pre-configured dashboard for system health monitoring
+
+### Cost Control
+- **AWS Budgets**: Monthly budget set at $50 with email alerts
+- **Budget Alerts**: Notifications at 80% and 100% of budget threshold
+- **Cost Optimization**: 
+  - Pay-per-use Lambda and DynamoDB pricing
+  - S3 Intelligent Tiering for automatic cost optimization
+  - CloudFront caching to reduce origin requests
+
+**Estimated Monthly Cost**: $25-35 (within free tier for low usage)
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Static Site**: HTML, CSS, JavaScript (vanilla JS)
+- **Hosting**: AWS S3 bucket for static file storage
+- **CDN**: CloudFront for global content delivery and caching
+- **Framework**: No framework dependencies (lightweight and fast)
+
+### Backend
+- **Serverless Functions**: AWS Lambda (Node.js 18.x runtime)
+- **API Framework**: Serverless Framework for deployment and configuration
+- **API Gateway**: AWS API Gateway for RESTful API endpoints
+- **Authentication**: AWS Cognito (ready for integration)
+
+### Database
+- **NoSQL Database**: AWS DynamoDB
+- **Tables**: 
+  - `dunkin-pos-backend-menu-{stage}` - Menu items
+  - `dunkin-pos-backend-orders-{stage}` - Order records
+  - `dunkin-pos-backend-inventory-{stage}` - Inventory items
+
+### Storage
+- **Object Storage**: AWS S3
+  - Frontend bucket: Static website files
+  - Images bucket: Menu item images and media files
+- **CDN**: CloudFront distributions for both frontend and images
+
+### Infrastructure as Code
+- **Terraform**: Infrastructure provisioning and management
+- **Serverless Framework**: Backend function deployment and configuration
+
+## 📐 System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -70,102 +141,87 @@ A cloud-native Point of Sale system for Dunkin' Donuts built with AWS serverless
 ```
 cloud-dunkin-pos-pro/
 ├── frontend/
-│   └── index.html          # Complete POS application
+│   ├── index.html          # Complete POS application (single-page app)
+│   ├── package.json        # Frontend dependencies
+│   └── start-server.*      # Local development server scripts
 ├── backend/
 │   ├── package.json        # Node.js dependencies
-│   ├── serverless.yml      # Serverless Framework config
+│   ├── serverless.yml      # Serverless Framework configuration
 │   └── handlers/
 │       ├── menu.js         # Menu CRUD operations
 │       ├── orders.js       # Order management
 │       ├── inventory.js    # Inventory management
-│       └── auth.js         # Authentication handlers
+│       ├── images.js       # Image upload handlers
+│       ├── auth.js         # Authentication handlers
+│       └── cors.js         # CORS handling
 ├── infrastructure/
 │   └── terraform/
-│       ├── main.tf         # Main infrastructure
+│       ├── main.tf         # Main infrastructure definitions
 │       ├── variables.tf    # Terraform variables
-│       └── outputs.tf      # Output values
+│       └── outputs.tf      # Output values (URLs, IDs, etc.)
 └── README.md
 ```
 
-## 🛠️ Prerequisites
+## 🚀 Getting Started
+
+### Prerequisites
 
 - **AWS Account** with appropriate permissions
 - **Node.js** 18.x or higher
 - **Terraform** 1.5+ installed
-- **Serverless Framework** CLI installed globally
+- **Serverless Framework** CLI installed globally (`npm install -g serverless`)
 - **AWS CLI** configured with credentials
 
-## 📦 Installation
+### Installation
 
-### 1. Clone Repository
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/jasmul/cloud-dunkin-pos-pro.git
+   cd cloud-dunkin-pos-pro
+   ```
 
-```bash
-git clone https://github.com/yourusername/cloud-dunkin-pos-pro.git
-cd cloud-dunkin-pos-pro
-```
+2. **Install Backend Dependencies**
+   ```bash
+   cd backend
+   npm install
+   ```
 
-### 2. Install Backend Dependencies
+3. **Configure AWS Credentials**
+   ```bash
+   aws configure
+   # Enter your AWS Access Key ID
+   # Enter your AWS Secret Access Key
+   # Set default region: us-east-1
+   ```
 
-```bash
-cd backend
-npm install
-```
+### Local Development
 
-### 3. Configure AWS Credentials
+#### Running the Frontend Locally
 
-```bash
-aws configure
-# Enter your AWS Access Key ID
-# Enter your AWS Secret Access Key
-# Set default region: us-east-1
-```
+**Important:** To avoid CORS errors, run the frontend through a local web server (not `file://`).
 
-### 4. Install Frontend Dependencies (for Local Development)
-
-```bash
-cd frontend
-npm install
-```
-
-## 💻 Local Development
-
-### Running the Frontend Locally
-
-**Important:** To avoid CORS errors, you must run the frontend through a local web server instead of opening the HTML file directly (`file://`).
-
-#### Option 1: Using the Frontend Package (Recommended)
-
+**Option 1: Using npm (Recommended)**
 ```bash
 cd frontend
 npm install  # First time only
 npm start    # Starts server on http://localhost:8080
 ```
 
-Then open your browser and navigate to: **`http://localhost:8080`**
-
-#### Option 2: Using Python (if you have Python installed)
-
+**Option 2: Using Python**
 ```bash
 cd frontend
-# Python 3
-python -m http.server 8080
-
-# Python 2
-python -m SimpleHTTPServer 8080
+python -m http.server 8080  # Python 3
 ```
 
-Then open: **`http://localhost:8080`**
-
-#### Option 3: Using Node.js http-server (if installed globally)
-
+**Option 3: Using Node.js http-server**
 ```bash
 cd frontend
 npx http-server -p 8080
 ```
 
-### Running the Backend Locally (Optional)
+Then open: **`http://localhost:8080`**
 
-If you want to test against a local backend instead of the deployed AWS API:
+#### Running the Backend Locally (Optional)
 
 ```bash
 cd backend
@@ -173,14 +229,7 @@ npm install
 npm start  # Starts serverless-offline on http://localhost:3000
 ```
 
-The frontend is already configured to automatically use `http://localhost:3000` when running on localhost.
-
-### Troubleshooting CORS Issues
-
-If you encounter CORS errors:
-1. **Make sure you're accessing via `http://localhost:8080`** (not `file://`)
-2. **Check that your backend API has CORS headers configured** (already done in this project)
-3. **Verify the API endpoint** in `frontend/index.html` matches your deployed API Gateway URL
+The frontend automatically uses `http://localhost:3000` when running on localhost.
 
 ## 🚀 Deployment
 
@@ -200,6 +249,11 @@ terraform apply
 ```
 
 **Note:** The Terraform backend S3 bucket is commented out by default. Uncomment it in `main.tf` if you have a state bucket configured.
+
+After deployment, note the outputs:
+- `cloudfront_domain_name` - Your CloudFront URL
+- `s3_bucket_name` - Frontend S3 bucket name
+- `images_cdn_url` - Images CDN URL
 
 ### Step 2: Deploy Backend (Serverless)
 
@@ -221,7 +275,7 @@ Edit `frontend/index.html` and update the `CLOUD_CONFIG` object:
 
 ```javascript
 const CLOUD_CONFIG = {
-    API_ENDPOINT: "https://YOUR_API_GATEWAY_URL.execute-api.us-east-1.amazonaws.com/dev",
+    API_ENDPOINT: "https://o6s1muofo4.execute-api.us-east-1.amazonaws.com/dev",
     REGION: "us-east-1"
 };
 ```
@@ -238,9 +292,9 @@ aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --path
 
 ## 🔌 API Endpoints
 
-All endpoints are prefixed with your API Gateway URL: `https://YOUR_API.execute-api.us-east-1.amazonaws.com/dev`
+All endpoints are prefixed with your API Gateway URL: `https://o6s1muofo4.execute-api.us-east-1.amazonaws.com/dev`
 
-### Menu Endpoints
+### Menu Endpoints (CRUD)
 
 - `GET /menu` - Retrieve all menu items (public, no auth required)
 - `POST /menu` - Create a new menu item
@@ -252,30 +306,23 @@ All endpoints are prefixed with your API Gateway URL: `https://YOUR_API.execute-
 - `GET /orders` - Retrieve all orders
 - `POST /orders` - Create a new order
 
-### Inventory Endpoints
+### Inventory Endpoints (CRUD)
 
 - `GET /inventory` - Retrieve inventory status
+- `POST /inventory` - Create inventory item
 - `PUT /inventory/{id}` - Update inventory quantity
+- `DELETE /inventory/{id}` - Delete inventory item
 
 ### Image Upload Endpoints
 
-- `POST /images/upload-url` - Get presigned URL for image upload
+- `POST /images/upload-url` - Get presigned URL for image upload to S3
 
 ### Authentication Endpoints
 
 - `POST /auth/login` - User login (Cognito integration ready)
 - `GET /auth/verify` - Verify authentication token
 
-## 💰 Cost Optimization
-
-- **Budget Alert**: Configured at $50/month with alerts at 80% and 100%
-- **Pay-per-use**: Lambda and DynamoDB use on-demand pricing
-- **S3 Intelligent Tiering**: Automatic cost optimization
-- **CloudFront Caching**: Reduces origin requests
-
-**Estimated Monthly Cost**: $25-35 (within free tier for low usage)
-
-## 📊 Monitoring
+## 📊 Monitoring & Observability
 
 ### CloudWatch Dashboard
 
@@ -297,11 +344,22 @@ serverless logs -f getMenu --tail
 aws logs tail /aws/lambda/dunkin-pos-backend-dev-getMenu --follow
 ```
 
+## 💰 Cost Management
+
+- **Budget Alert**: Configured at $50/month with alerts at 80% and 100%
+- **Pay-per-use**: Lambda and DynamoDB use on-demand pricing
+- **S3 Intelligent Tiering**: Automatic cost optimization
+- **CloudFront Caching**: Reduces origin requests
+
+**Estimated Monthly Cost**: $25-35 (within free tier for low usage)
+
+Update email in `infrastructure/terraform/main.tf` for budget notifications.
+
 ## 🔒 Security
 
-- **HTTPS**: Enforced via CloudFront
-- **IAM Roles**: Least privilege access
-- **S3 Private**: Access only via CloudFront OAI
+- **HTTPS**: Enforced via CloudFront (redirects HTTP to HTTPS)
+- **IAM Roles**: Least privilege access for Lambda functions
+- **S3 Private**: Access only via CloudFront Origin Access Identity (OAI)
 - **CORS**: Configured for API endpoints
 - **Authentication**: Ready for Cognito integration
 
@@ -310,19 +368,19 @@ aws logs tail /aws/lambda/dunkin-pos-backend-dev-getMenu --follow
 ### Test Menu Endpoint
 
 ```bash
-# Get menu items
-curl https://YOUR_API.execute-api.us-east-1.amazonaws.com/dev/menu
+# Get menu items (public endpoint)
+curl https://o6s1muofo4.execute-api.us-east-1.amazonaws.com/dev
 
 # Create menu item
-curl -X POST https://YOUR_API.execute-api.us-east-1.amazonaws.com/dev/menu \
+curl -X POST https://o6s1muofo4.execute-api.us-east-1.amazonaws.com/dev \
   -H "Content-Type: application/json" \
-  -d '{"name":"Coffee","price":2.99,"category":"Beverages"}'
+  -d '{"name":"Coffee","price":2.99,"category":"Beverages","description":"Hot coffee"}'
 ```
 
 ### Test Order Endpoint
 
 ```bash
-curl -X POST https://YOUR_API.execute-api.us-east-1.amazonaws.com/dev/orders \
+curl -X POST https://o6s1muofo4.execute-api.us-east-1.amazonaws.com/dev \
   -H "Content-Type: application/json" \
   -d '{"items":[{"id":"1","name":"Coffee","price":2.99,"quantity":2}],"total":5.98}'
 ```
@@ -339,19 +397,21 @@ CI/CD can be configured using GitHub Actions workflows for automated deployment 
 ## 🐛 Troubleshooting
 
 ### Frontend not loading
-- Check CloudFront distribution status
+- Check CloudFront distribution status in AWS Console
 - Verify S3 bucket has correct files
 - Check browser console for CORS errors
+- Ensure CloudFront cache is invalidated after updates
 
 ### API Gateway errors
-- Verify Lambda function is deployed
+- Verify Lambda function is deployed (`serverless list`)
 - Check CloudWatch logs for errors
 - Ensure DynamoDB tables exist
+- Verify API Gateway endpoint URL is correct
 
 ### Terraform errors
-- Ensure AWS credentials are configured
-- Check IAM permissions
-- Verify region is correct
+- Ensure AWS credentials are configured (`aws configure`)
+- Check IAM permissions for Terraform operations
+- Verify region is correct (us-east-1)
 
 ## 📝 Environment Variables
 
@@ -360,15 +420,17 @@ Update these in `backend/serverless.yml`:
 - `MENU_TABLE`: DynamoDB table name for menu items
 - `ORDERS_TABLE`: DynamoDB table name for orders
 - `INVENTORY_TABLE`: DynamoDB table name for inventory
-- `COGNITO_CLIENT_ID`: Cognito User Pool Client ID (if using auth)
+- `IMAGES_BUCKET`: S3 bucket name for images
+- `IMAGES_CDN_DOMAIN`: CloudFront domain for images
 
 ## 🎯 Next Steps
 
 1. **Configure Cognito**: Set up user pool and integrate authentication
 2. **Add Custom Domain**: Configure Route 53 and ACM certificate
 3. **Enable WAF**: Add Web Application Firewall for additional security
-4. **Set up Alarms**: Configure CloudWatch alarms for errors
+4. **Set up Alarms**: Configure CloudWatch alarms for errors and thresholds
 5. **Add Tests**: Implement unit and integration tests
+6. **Optimize Caching**: Fine-tune CloudFront cache policies
 
 ## 📄 License
 
